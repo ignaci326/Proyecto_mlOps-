@@ -7,7 +7,7 @@ The following instructions were tested in a virtual machine with Linux OS.
 
  - Clone repository 
 ```
-git clone  https://github.com/dcampanini/mlops-xgboost.git 
+git clone  https://github.com/ignaci326/Proyecto_mlOps-.git 
 ```
  - Create a Python virtual environment:
 ```
