@@ -19,7 +19,7 @@ source env_logit/bin/activate
 ```
 - Change to the local repository directory
 ```
-cd mlops-logit
+cd Proyecto_mlOps-
 ```
 - Install the required libraries using the file requirements.txt
 ```
