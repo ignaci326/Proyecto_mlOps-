@@ -53,5 +53,17 @@ def export_dataset(
     query_job = client.query(query=query, job_config=job_config)
     df = query_job.result().to_dataframe()
     df.to_csv(dataset.path, index=False)
-
+  
+@dsl.pipeline(
+    name="census-demo-pipeline",
+)
+def pipeline():
+    """A demo pipeline."""
+    
+if __name__ == '__main__':
+    
+    compiler.Compiler().compile(
+        pipeline_func=pipeline, package_path="tab_classif_pipeline.json"
+    )
+    print('Pipeline compilado exitosamente')
     
