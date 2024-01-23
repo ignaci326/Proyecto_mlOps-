@@ -102,16 +102,17 @@ def logit_training(
     reg = 0.01
 
     # train a logistic regression model on the training set
-    model = LogisticRegression(C=1/reg, solver="liblinear").fit(X_train, y_train)
+    model_logit = LogisticRegression(C=1/reg, solver="liblinear").fit(X_train, y_train)
 
-    predictions = model.predict(X_test)
-    from sklearn.metrics import accuracy_score
-    Accuracy = accuracy_score(y_test, predictions)
+    metrics.log_metric("accuracy", (score * 100.0))
+    metrics.log_metric("framework", "xgboost")
+    metrics.log_metric("dataset_size", len(raw_data))
+    metrics.log_metric("AUC", auc)
 
 
     # Export the model to a file
     os.makedirs(model.path, exist_ok=True)
-    joblib.dump(model, os.path.join(model.path, "model.joblib"))
+    joblib.dump(model_logit, os.path.join(model.path, "model.joblib"))
     
 
 @component(
