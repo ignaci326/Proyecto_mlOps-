@@ -157,7 +157,7 @@ def pipeline():
         export_dataset(
             project_id=PROJECT_ID,
             dataset_id=DATASET_ID,
-            view_name=VIEW_NAME,
+            table_name=TABLE_NAME,
         )
     )
 
