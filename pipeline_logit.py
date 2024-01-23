@@ -153,20 +153,12 @@ def deploy_logit_model(
 def pipeline():
     """A demo pipeline."""
 
-    create_input_view_task = create_diabetes_view(
-        project_id=PROJECT_ID,
-        dataset_id=DATASET_ID,
-        view_name=VIEW_NAME,
-    )
-
     export_dataset_task = (
         export_dataset(
             project_id=PROJECT_ID,
             dataset_id=DATASET_ID,
             view_name=VIEW_NAME,
         )
-        .after(create_input_view_task)
-        .set_caching_options(False)
     )
 
     training_task = logit_training(
