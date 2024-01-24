@@ -107,7 +107,7 @@ def logit_training(
     predictions = logit_model.predict(X_test)
 
     metrics.log_metric("accuracy", (score * 100.0))
-    metrics.log_metric("framework", "xgboost")
+    metrics.log_metric("framework", "logit")
     metrics.log_metric("dataset_size", len(raw_data))
     metrics.log_metric("AUC", auc)
 
