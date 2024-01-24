@@ -106,6 +106,10 @@ def logit_training(
 
     predictions = model_logit.predict(X_test)
 
+    score = accuracy_score(y_test, predictions)
+    auc = roc_auc_score(y_test, predictions)
+    _ = precision_recall_curve(y_test, predictions)
+
     metrics.log_metric("accuracy", (score * 100.0))
     metrics.log_metric("framework", "logit")
     metrics.log_metric("dataset_size", len(raw_data))
