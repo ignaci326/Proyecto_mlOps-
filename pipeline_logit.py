@@ -147,7 +147,7 @@ def deploy_logit_model(
     deployed_model = aiplatform.Model.upload(
         display_name="diabetes-demo-model",
         artifact_uri=model.uri,
-        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-6:latest",
+        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/logitit-cpu.1-6:latest",
     )
     endpoint = deployed_model.deploy(machine_type="n1-standard-4")
 
