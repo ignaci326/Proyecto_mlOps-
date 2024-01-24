@@ -104,7 +104,7 @@ def logit_training(
     # train a logistic regression model on the training set
     model_logit = LogisticRegression(C=1/reg, solver="liblinear").fit(X_train, y_train)
 
-    predictions = logit_model.predict(X_test)
+    predictions = model_logit.predict(X_test)
 
     metrics.log_metric("accuracy", (score * 100.0))
     metrics.log_metric("framework", "logit")
