@@ -14,7 +14,9 @@ from google_cloud_pipeline_components import aiplatform as gcc_aip
 
 PROJECT_ID = 'manifest-sum-411400'
 DATASET_ID = "diabetes"  # The Data Set ID where the view sits
-TABLE_NAME = "diabetes"  # BigQuery view you create for input data
+TABLE_NAME = "diabetes"
+
+    
     
 @component(
     packages_to_install=["google-cloud-bigquery[pandas]==3.10.0"],
@@ -54,20 +56,23 @@ def export_dataset(
     query_job = client.query(query=query, job_config=job_config)
     df = query_job.result().to_dataframe()
     df.to_csv(dataset.path, index=False)
+
+    
     
 @component(
     packages_to_install=[
+        "xgboost==1.6.2",
         "pandas==1.3.5",
         "joblib==1.1.0",
         "scikit-learn==1.0.2",
     ],
 )
-def logit_training(
+def xgboost_training(
     dataset: Input[Dataset],
     model: Output[Model],
     metrics: Output[Metrics],
 ):
-    """Trains an logit classifier.
+    """Trains an XGBoost classifier.
 
     Args:
         dataset: The training dataset.
@@ -80,14 +85,14 @@ def logit_training(
 
     import joblib
     import pandas as pd
+    import xgboost as xgb
     from sklearn.metrics import (accuracy_score, precision_recall_curve,
                                  roc_auc_score)
     from sklearn.model_selection import (RandomizedSearchCV, StratifiedKFold,
                                          train_test_split)
     from sklearn.preprocessing import LabelEncoder
-    from sklearn.linear_model import LogisticRegression
 
-    # Load the training diabetes dataset
+    # Load the training census dataset
     with open(dataset.path, "r") as train_data:
         raw_data = pd.read_csv(train_data)
 
@@ -97,34 +102,61 @@ def logit_training(
     y = raw_data[LABEL_COLUMN] 
 
     X_train, X_test, y_train, y_test = train_test_split(X, y)
+    _ = xgb.DMatrix(X_train, label=y_train)
+    _ = xgb.DMatrix(X_test, label=y_test)
 
-    # Set regularization rate
-    reg = 0.01
+    params = {
+        "reg_lambda": [0, 1],
+        "gamma": [1],
+        "max_depth": [10],
+        "learning_rate": [0.1],
+    }
 
-    # train a logistic regression model on the training set
-    model_logit = LogisticRegression(C=1/reg, solver="liblinear").fit(X_train, y_train)
+    xgb_model = xgb.XGBClassifier(
+        n_estimators=50,
+        objective="binary:hinge",
+        silent=True,
+        nthread=1,
+        eval_metric="auc",
+    )
 
-    predictions = model_logit.predict(X_test)
+    folds = 3
+    param_comb = 10
 
+    skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
+
+    random_search = RandomizedSearchCV(
+        xgb_model,
+        param_distributions=params,
+        n_iter=param_comb,
+        scoring="precision",
+        n_jobs=4,
+        cv=skf.split(X_train, y_train),
+        verbose=4,
+        random_state=42,
+    )
+
+    random_search.fit(X_train, y_train)
+    xgb_model_best = random_search.best_estimator_
+    predictions = xgb_model_best.predict(X_test)
     score = accuracy_score(y_test, predictions)
     auc = roc_auc_score(y_test, predictions)
     _ = precision_recall_curve(y_test, predictions)
 
     metrics.log_metric("accuracy", (score * 100.0))
-    metrics.log_metric("framework", "logit")
+    metrics.log_metric("framework", "xgboost")
     metrics.log_metric("dataset_size", len(raw_data))
     metrics.log_metric("AUC", auc)
 
-
     # Export the model to a file
     os.makedirs(model.path, exist_ok=True)
-    joblib.dump(model_logit, os.path.join(model.path, "model.joblib"))
+    joblib.dump(xgb_model_best, os.path.join(model.path, "model.joblib"))
     
 
 @component(
     packages_to_install=["google-cloud-aiplatform==1.25.0"],
 )
-def deploy_logit_model(
+def deploy_xgboost_model(
     model: Input[Model],
     project_id: str,
     vertex_endpoint: Output[Artifact],
@@ -145,9 +177,9 @@ def deploy_logit_model(
     aiplatform.init(project=project_id)
 
     deployed_model = aiplatform.Model.upload(
-        display_name="diabetes-demo-model",
+        display_name="census-demo-model",
         artifact_uri=model.uri,
-        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/logitit-cpu.1-6:latest",
+        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-6:latest",
     )
     endpoint = deployed_model.deploy(machine_type="n1-standard-4")
 
@@ -155,7 +187,7 @@ def deploy_logit_model(
     vertex_model.uri = deployed_model.resource_name
     
 @dsl.pipeline(
-    name="diabetes-demo-pipeline",
+    name="census-demo-pipeline",
 )
 def pipeline():
     """A demo pipeline."""
@@ -168,11 +200,11 @@ def pipeline():
         )
     )
 
-    training_task = logit_training(
+    training_task = xgboost_training(
         dataset=export_dataset_task.outputs["dataset"],
     )
 
-    _ = deploy_logit_model(
+    _ = deploy_xgboost_model(
         project_id=PROJECT_ID,
         model=training_task.outputs["model"],
     )
