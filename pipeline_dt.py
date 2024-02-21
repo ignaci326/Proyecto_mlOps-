@@ -15,6 +15,8 @@ from google_cloud_pipeline_components import aiplatform as gcc_aip
 PROJECT_ID = 'mlops-414911'
 DATASET_ID = "beans"  # The Data Set ID where the view sits
 TABLE_NAME = "Dry_Bean_Dataset"
+REGION="us-central1"
+BUCKET_NAME='gs://mlops-414911-bucket'
     
     
 @component(
