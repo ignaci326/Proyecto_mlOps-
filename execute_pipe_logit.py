@@ -6,10 +6,10 @@ if __name__ == '__main__':
     TIMESTAMP = datetime.now().strftime("%Y%m%d%H%M%S")
 
     job = aiplatform.PipelineJob(
-        display_name="mlops-xgboost",
+        display_name="mlops-beans",
         template_path="tab_classif_pipeline.json",
-        job_id="mlops-xgboost-{0}".format(TIMESTAMP),
-        enable_caching=False
+        job_id="mlops-beans-{0}".format(TIMESTAMP),
+        enable_caching=True
     )
 
     job.submit()
