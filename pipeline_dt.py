@@ -148,7 +148,7 @@ def deploy_model(
     
 @dsl.pipeline(
     name="beans-demo-pipeline",
-    pipeline_root=PIPELINE_ROOT
+    pipeline_root='gs://mlops-414911-bucket/pipeline_root/'
 )
 def pipeline(    
     bq_source: str = 'bq://mlops-414911.beans.Dry_Bean_Dataset',
