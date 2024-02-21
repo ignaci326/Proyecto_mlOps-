@@ -11,11 +11,11 @@ git clone  https://github.com/ignaci326/Proyecto_mlOps-.git
 ```
  - Create a Python virtual environment:
 ```
-python3 -m venv env_logit
+python3 -m venv env_dt
 ```
 - Activate the virtual environment recently created
 ```
-source env_logit/bin/activate
+source env_dt/bin/activate
 ```
 - Change to the local repository directory
 ```
@@ -27,9 +27,9 @@ pip install -r requirements.txt
 ```
 - Run the code to compile the pipeline
 ```
-python pipeline_logit.py
+python pipeline_dt.py
 ```
 - Run the code to execute the pipeline
 ```
-python execute_pipe_logit.py
+python execute_pipe_dt.py
 ```
