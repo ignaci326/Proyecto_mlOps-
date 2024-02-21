@@ -125,7 +125,7 @@ jupyterlab_server==2.25.2
 jupyterlab-widgets==3.0.9
 keyring==24.3.0
 keyrings.google-artifactregistry-auth==1.1.2
-kfp==2.5.0
+kfp==1.8.22
 kfp-pipeline-spec==0.2.2
 kfp-server-api==2.0.5
 kiwisolver==1.4.5
