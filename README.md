@@ -1,4 +1,4 @@
-# End-to-end MLOps pipeline to train a Logistic regression classifier using Vertex AI on GCP
+# End-to-end MLOps pipeline to train a decision tree classifier using Vertex AI on GCP
 
 The files in this repository allow you to build a  pipeline on GCP. \
 Copy the next instruction in your terminal to successfully build a pipeline using Vertex AI.
